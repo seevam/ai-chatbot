@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
-import './globals.css'
+import './globals.css'  // ← This line is CRITICAL!
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   title: 'Sahayata - Anonymous Domestic Violence Support',
   description: 'Anonymous, multilingual support for domestic violence victims in India',
   keywords: ['domestic violence', 'support', 'anonymous', 'help', 'India', 'Telugu', 'Hindi'],
-  robots: 'noindex, nofollow', // Privacy: don't index the site
+  robots: 'noindex, nofollow',
 }
 
 export default function RootLayout({
