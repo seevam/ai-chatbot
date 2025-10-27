@@ -1,15 +1,12 @@
 'use client'
 
 import { X } from 'lucide-react'
-import { useRouter } from 'next/navigation'
 
 interface QuickExitButtonProps {
   language: 'en' | 'hi' | 'te'
 }
 
 export default function QuickExitButton({ language }: QuickExitButtonProps) {
-  const router = useRouter()
-
   const labels = {
     en: 'Quick Exit',
     hi: 'तुरंत बाहर निकलें',
@@ -18,14 +15,16 @@ export default function QuickExitButton({ language }: QuickExitButtonProps) {
 
   const handleQuickExit = () => {
     // Clear session storage
-    sessionStorage.clear()
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      sessionStorage.clear()
+    }
     
     // Clear conversation history
     if (typeof window !== 'undefined') {
       window.history.replaceState({}, '', '/')
     }
     
-    // Redirect to a safe website (weather or news)
+    // Redirect to a safe website
     window.location.replace('https://www.google.com/search?q=weather')
   }
 
@@ -36,7 +35,7 @@ export default function QuickExitButton({ language }: QuickExitButtonProps) {
       title="Emergency Exit - Redirects to weather site"
     >
       <X className="w-4 h-4" />
-      <span className="hidden sm:inline">{labels[language]}</span>
+      <span className="hidden sm:inline text-xs">{labels[language]}</span>
     </button>
   )
 }
