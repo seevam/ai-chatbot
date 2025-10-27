@@ -79,17 +79,11 @@ Respond in ${language === 'te' ? 'Telugu' : language === 'hi' ? 'Hindi' : 'Engli
   } catch (error: any) {
     console.error('Error in chat API:', error)
     
-    // Return user-friendly error based on language
-    const errorMessages = {
-      en: 'I apologize, but I encountered an error. Please try again or contact emergency helpline 181.',
-      hi: 'मुझे खेद है, लेकिन एक त्रुटि हुई। कृपया पुन: प्रयास करें या आपातकालीन हेल्पलाइन 181 से संपर्क करें।',
-      te: 'క్షమించండి, నాకు లోపం ఎదురైంది. దయచేసి మళ్లీ ప్రయత్నించండి లేదా అత్యవసర హెల్ప్‌లైన్ 181కి సంప్రదించండి.',
-    }
-
+    // Return simple error message
     return NextResponse.json(
       { 
         error: 'Failed to generate response',
-        response: errorMessages[request.json().then(d => d.language) as keyof typeof errorMessages] || errorMessages.en
+        response: 'I apologize, but I encountered an error. Please try again or contact emergency helpline 181.'
       },
       { status: 500 }
     )
