@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Send, AlertTriangle, MessageCircle } from 'lucide-react'
+import { Send, AlertTriangle, Menu, ArrowLeft, MoreVertical, Phone, Video, Search } from 'lucide-react'
 import { translations } from '@/lib/translations'
 import { conversationFlows } from '@/lib/conversationFlows'
 import { crisisKeywords } from '@/lib/crisisKeywords'
@@ -41,6 +41,7 @@ export default function ChatInterface() {
   })
   
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLTextAreaElement>(null)
   const t = translations[language]
   const [isBrowser, setIsBrowser] = useState(false)
 
@@ -67,6 +68,14 @@ export default function ChatInterface() {
   useEffect(() => {
     scrollToBottom()
   }, [messages])
+
+  // Auto-resize textarea
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.style.height = 'auto'
+      inputRef.current.style.height = Math.min(inputRef.current.scrollHeight, 120) + 'px'
+    }
+  }, [inputValue])
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -126,7 +135,6 @@ export default function ChatInterface() {
         }, 800)
       }
     } else if (option.action === 'aiResponse') {
-      // Trigger AI response
       await handleAIResponse(option.text)
     } else if (option.action === 'showResources') {
       await fetchResources(conversationContext.category)
@@ -144,7 +152,7 @@ export default function ChatInterface() {
           message: userMessage,
           language,
           context: conversationContext,
-          conversationHistory: messages.slice(-5), // Last 5 messages for context
+          conversationHistory: messages.slice(-5),
         }),
       })
 
@@ -245,92 +253,113 @@ export default function ChatInterface() {
     <div className="chat-container">
       <QuickExitButton language={language} />
 
-      {/* Header */}
-      <div className="bg-primary-500 text-white p-4 shadow-lg">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <MessageCircle className="w-6 h-6" />
-            <div>
-              <h1 className="text-xl font-bold">Sahayata</h1>
-              <p className="text-sm opacity-90">{t.subtitle}</p>
-            </div>
+      {/* WhatsApp-style Header */}
+      <div className="wa-header">
+        <div className="flex items-center gap-3 flex-1">
+          <button className="hover:bg-wa-dark p-2 rounded-full transition-colors">
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          
+          <div className="w-10 h-10 rounded-full bg-primary-500 flex items-center justify-center text-white font-bold">
+            S
           </div>
           
-          {/* Language Switcher */}
+          <div className="flex-1">
+            <h1 className="text-base font-medium">Sahayata</h1>
+            <p className="text-xs opacity-80">
+              {language === 'te' ? 'ఆన్‌లైన్' : language === 'hi' ? 'ऑनलाइन' : 'Online'}
+            </p>
+          </div>
+        </div>
+        
+        {/* Header actions */}
+        <div className="flex items-center gap-4">
+          {/* Language Switcher as dropdown */}
           <select
             value={language}
             onChange={(e) => handleLanguageChange(e.target.value as Language)}
-            className="bg-primary-600 text-white px-3 py-1 rounded-lg text-sm border border-primary-400 focus:outline-none focus:ring-2 focus:ring-white"
+            className="bg-wa-dark text-white px-2 py-1 rounded text-xs border-none focus:outline-none cursor-pointer"
           >
             <option value="te">తెలుగు</option>
             <option value="hi">हिंदी</option>
             <option value="en">English</option>
           </select>
+          
+          <button className="hover:bg-wa-dark p-2 rounded-full transition-colors">
+            <MoreVertical className="w-5 h-5" />
+          </button>
         </div>
       </div>
 
       {/* Crisis Banner */}
       {conversationContext.crisisDetected && (
-        <div className="bg-danger-50 border-l-4 border-danger-500 p-4">
-          <div className="max-w-4xl mx-auto flex items-center gap-3">
-            <AlertTriangle className="w-5 h-5 text-danger-600 flex-shrink-0" />
-            <p className="text-sm text-danger-800 font-semibold">{t.crisisMode}</p>
+        <div className="crisis-banner">
+          <div className="flex items-center gap-3">
+            <AlertTriangle className="w-4 h-4 text-danger-600 flex-shrink-0" />
+            <p className="text-danger-800 font-semibold text-xs">{t.crisisMode}</p>
           </div>
         </div>
       )}
 
-      {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4">
-        <div className="max-w-4xl mx-auto space-y-4">
+      {/* Messages Area - WhatsApp style */}
+      <div className="flex-1 overflow-y-auto py-4 messages-scroll">
+        <div className="max-w-4xl mx-auto">
           {messages.map((message) => (
             <MessageBubble key={message.id} message={message} />
           ))}
           
+          {/* Typing Indicator */}
           {isLoading && (
-            <div className="message-bot">
-              <div className="flex gap-1">
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+            <div className="flex justify-start px-2 mb-2">
+              <div className="message-bot">
+                <div className="typing-indicator">
+                  <div className="typing-dot" style={{ animationDelay: '0ms' }}></div>
+                  <div className="typing-dot" style={{ animationDelay: '150ms' }}></div>
+                  <div className="typing-dot" style={{ animationDelay: '300ms' }}></div>
+                </div>
               </div>
             </div>
           )}
 
+          {/* Quick Reply Buttons */}
           {showQuickReplies && !isLoading && getCurrentStepOptions().length > 0 && (
-            <QuickReplyButtons
-              options={getCurrentStepOptions()}
-              onSelect={handleQuickReply}
-            />
+            <div className="px-2 my-3">
+              <QuickReplyButtons
+                options={getCurrentStepOptions()}
+                onSelect={handleQuickReply}
+              />
+            </div>
           )}
           
           <div ref={messagesEndRef} />
         </div>
       </div>
 
-      {/* Input Area */}
-      <div className="bg-white border-t border-gray-200 p-4 shadow-lg">
-        <div className="max-w-4xl mx-auto">
-          <div className="flex gap-2 items-end">
-            <div className="flex-1 relative">
-              <textarea
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyPress={handleKeyPress}
-                placeholder={t.inputPlaceholder}
-                rows={1}
-                className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
-                style={{ maxHeight: '120px' }}
-              />
-            </div>
-            <button
-              onClick={handleSendMessage}
-              disabled={!inputValue.trim() || isLoading}
-              className="bg-primary-500 text-white p-3 rounded-full hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
-            >
-              <Send className="w-5 h-5" />
-            </button>
+      {/* WhatsApp-style Input Area */}
+      <div className="bg-wa-bg border-t border-gray-300 px-2 py-2">
+        <div className="max-w-4xl mx-auto flex gap-2 items-end">
+          {/* Input field */}
+          <div className="flex-1">
+            <textarea
+              ref={inputRef}
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder={t.inputPlaceholder}
+              rows={1}
+              className="wa-input"
+              style={{ maxHeight: '120px' }}
+            />
           </div>
-          <p className="text-xs text-gray-500 mt-2 text-center">{t.privacyNote}</p>
+          
+          {/* Send button */}
+          <button
+            onClick={handleSendMessage}
+            disabled={!inputValue.trim() || isLoading}
+            className="wa-send-btn"
+          >
+            <Send className="w-5 h-5" />
+          </button>
         </div>
       </div>
     </div>
