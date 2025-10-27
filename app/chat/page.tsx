@@ -9,9 +9,11 @@ export default function ChatPage() {
 
   useEffect(() => {
     // Check if language is selected
-    const lang = sessionStorage.getItem('preferredLanguage')
-    if (!lang) {
-      router.push('/')
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      const lang = sessionStorage.getItem('preferredLanguage')
+      if (!lang) {
+        router.push('/')
+      }
     }
   }, [router])
 
