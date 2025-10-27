@@ -7,18 +7,26 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        // WhatsApp green theme
         primary: {
-          50: '#fdf2f8',
-          100: '#fce7f3',
-          200: '#fbcfe8',
-          300: '#f9a8d4',
-          400: '#f472b6',
-          500: '#ec4899',
-          600: '#db2777',
-          700: '#be185d',
-          800: '#9d174d',
-          900: '#831843',
+          50: '#e7f5ec',
+          100: '#c3e6cd',
+          200: '#9dd6ac',
+          300: '#75c68a',
+          400: '#56ba70',
+          500: '#25D366', // WhatsApp green
+          600: '#20c05c',
+          700: '#1aaa50',
+          800: '#159444',
+          900: '#0c6e2f',
         },
+        // WhatsApp specific colors
+        'wa-incoming': '#FFFFFF',
+        'wa-outgoing': '#DCF8C6',
+        'wa-bg': '#ECE5DD',
+        'wa-header': '#075E54',
+        'wa-dark': '#128C7E',
+        'wa-teal': '#00A884',
         safe: {
           50: '#f0fdf4',
           100: '#dcfce7',
