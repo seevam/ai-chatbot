@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
-import { Send, Mic, X, AlertTriangle, MessageCircle } from 'lucide-react'
+import { Send, AlertTriangle, MessageCircle } from 'lucide-react'
 import { translations } from '@/lib/translations'
 import { conversationFlows } from '@/lib/conversationFlows'
 import { crisisKeywords } from '@/lib/crisisKeywords'
@@ -42,19 +42,27 @@ export default function ChatInterface() {
   
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const t = translations[language]
+  const [isBrowser, setIsBrowser] = useState(false)
+
+  // Check if we're in the browser
+  useEffect(() => {
+    setIsBrowser(true)
+  }, [])
 
   useEffect(() => {
-    // Get language from sessionStorage
-    const storedLang = sessionStorage.getItem('preferredLanguage') as Language
-    if (storedLang) {
-      setLanguage(storedLang)
-    }
+    // Get language from sessionStorage only in browser
+    if (isBrowser && typeof window !== 'undefined' && window.sessionStorage) {
+      const storedLang = sessionStorage.getItem('preferredLanguage') as Language
+      if (storedLang) {
+        setLanguage(storedLang)
+      }
 
-    // Send welcome message
-    const welcomeFlow = conversationFlows[storedLang || 'en']
-    const welcomeStep = welcomeFlow.welcome
-    addBotMessage(welcomeStep.message, 'low')
-  }, [])
+      // Send welcome message
+      const welcomeFlow = conversationFlows[storedLang || 'en']
+      const welcomeStep = welcomeFlow.welcome
+      addBotMessage(welcomeStep.message, 'low')
+    }
+  }, [isBrowser])
 
   useEffect(() => {
     scrollToBottom()
@@ -140,6 +148,10 @@ export default function ChatInterface() {
         }),
       })
 
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`)
+      }
+
       const data = await response.json()
 
       if (data.response) {
@@ -162,6 +174,11 @@ export default function ChatInterface() {
 
     try {
       const response = await fetch(`/api/resources?category=${category}&language=${language}`)
+      
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`)
+      }
+
       const data = await response.json()
 
       if (data.resources && data.resources.length > 0) {
@@ -195,7 +212,7 @@ export default function ChatInterface() {
       setConversationContext((prev) => ({ ...prev, crisisDetected: true }))
       setTimeout(() => {
         addBotMessage(t.crisisDetected, 'crisis')
-        addBotMessage(t.emergencyNumbers, 'crisis')
+        addBotMessage(t.emergencyContacts, 'crisis')
       }, 500)
       return
     }
@@ -217,6 +234,13 @@ export default function ChatInterface() {
     return stepData?.options || []
   }
 
+  const handleLanguageChange = (newLang: Language) => {
+    setLanguage(newLang)
+    if (isBrowser && typeof window !== 'undefined' && window.sessionStorage) {
+      sessionStorage.setItem('preferredLanguage', newLang)
+    }
+  }
+
   return (
     <div className="chat-container">
       <QuickExitButton language={language} />
@@ -235,11 +259,7 @@ export default function ChatInterface() {
           {/* Language Switcher */}
           <select
             value={language}
-            onChange={(e) => {
-              const newLang = e.target.value as Language
-              setLanguage(newLang)
-              sessionStorage.setItem('preferredLanguage', newLang)
-            }}
+            onChange={(e) => handleLanguageChange(e.target.value as Language)}
             className="bg-primary-600 text-white px-3 py-1 rounded-lg text-sm border border-primary-400 focus:outline-none focus:ring-2 focus:ring-white"
           >
             <option value="te">తెలుగు</option>
