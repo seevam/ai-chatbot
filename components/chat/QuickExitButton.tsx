@@ -35,7 +35,7 @@ export default function QuickExitButton({ language }: QuickExitButtonProps) {
       title="Emergency Exit - Redirects to weather site"
     >
       <X className="w-4 h-4" />
-      <span className="hidden sm:inline text-xs">{labels[language]}</span>
+      <span className="text-xs">{labels[language]}</span>
     </button>
   )
 }
