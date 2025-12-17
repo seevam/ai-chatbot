@@ -87,7 +87,7 @@ export default function HomePage() {
                     selectedLanguage === lang.code
                       ? 'bg-primary-500 text-white border-primary-500'
                       : 'bg-white text-gray-900 hover:bg-primary-50 hover:border-primary-500'
-                  }`}
+                  } active:bg-primary-600 active:text-white`}
                 >
                   <div className="flex items-center justify-between">
                     <div className="text-left">

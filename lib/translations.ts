@@ -77,6 +77,12 @@ interface Translations {
   // Footer
   notSubstitute: string
   callEmergency: string
+
+  // Follow-up
+  followUpPrompt: string
+
+  // Location
+  locationPrompt: string
 }
 
 export const translations: Record<Language, Translations> = {
@@ -165,6 +171,12 @@ If you're in immediate danger:
     // Footer
     notSubstitute: 'This is a support tool, not a substitute for professional help',
     callEmergency: 'In emergency, call 181 or 112',
+
+    // Follow-up
+    followUpPrompt: 'Is there anything else I can help you with?',
+
+    // Location
+    locationPrompt: 'Please tell me your city or district so I can find local resources for you.',
   },
   
   hi: {
@@ -252,6 +264,12 @@ If you're in immediate danger:
     // Footer
     notSubstitute: 'यह एक समर्थन उपकरण है, पेशेवर मदद का विकल्प नहीं',
     callEmergency: 'आपातकाल में, 181 या 112 पर कॉल करें',
+
+    // Follow-up
+    followUpPrompt: 'क्या मैं आपकी और किसी चीज़ में मदद कर सकता हूँ?',
+
+    // Location
+    locationPrompt: 'कृपया मुझे अपना शहर या जिला बताएं ताकि मैं आपके लिए स्थानीय संसाधन खोज सकूं।',
   },
   
   te: {
@@ -339,6 +357,12 @@ If you're in immediate danger:
     // Footer
     notSubstitute: 'ఇది మద్దతు సాధనం, వృత్తిపరమైన సహాయానికి ప్రత్యామ్నాయం కాదు',
     callEmergency: 'అత్యవసర పరిస్థితుల్లో, 181 లేదా 112కి కాల్ చేయండి',
+
+    // Follow-up
+    followUpPrompt: 'నేను మీకు మరేదైనా సహాయం చేయగలనా?',
+
+    // Location
+    locationPrompt: 'దయచేసి మీ నగరం లేదా జిల్లాను నాకు తెలియజేయండి, తద్వారా నేను మీ కోసం స్థానిక వనరులను కనుగొనగలను.',
   },
 }
 

@@ -39,6 +39,7 @@ export default function ChatInterface() {
     category: '',
     crisisDetected: false,
   })
+  const [waitingForLocation, setWaitingForLocation] = useState(false)
   
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -137,7 +138,12 @@ export default function ChatInterface() {
     } else if (option.action === 'aiResponse') {
       await handleAIResponse(option.text)
     } else if (option.action === 'showResources') {
-      await fetchResources(conversationContext.category)
+      // Prompt for location before fetching resources
+      setTimeout(() => {
+        addBotMessage(t.locationPrompt)
+        setWaitingForLocation(true)
+        setShowQuickReplies(false)
+      }, 500)
     }
   }
 
@@ -164,7 +170,12 @@ export default function ChatInterface() {
 
       if (data.response) {
         addBotMessage(data.response)
-        
+
+        // Add follow-up prompt
+        setTimeout(() => {
+          addBotMessage(t.followUpPrompt)
+        }, 500)
+
         if (data.suggestedActions && data.suggestedActions.length > 0) {
           setShowQuickReplies(true)
         }
@@ -177,12 +188,13 @@ export default function ChatInterface() {
     }
   }
 
-  const fetchResources = async (category: string) => {
+  const fetchResources = async (category: string, location?: string) => {
     setIsLoading(true)
 
     try {
-      const response = await fetch(`/api/resources?category=${category}&language=${language}`)
-      
+      const locationParam = location ? `&location=${encodeURIComponent(location)}` : ''
+      const response = await fetch(`/api/resources?category=${category}&language=${language}${locationParam}`)
+
       if (!response.ok) {
         throw new Error(`API error: ${response.status}`)
       }
@@ -193,7 +205,7 @@ export default function ChatInterface() {
         const resourceText = data.resources
           .map((r: any) => `📍 ${r.name}\n📞 ${r.contact}\n${r.description}`)
           .join('\n\n')
-        
+
         addBotMessage(`${t.resourcesFound}\n\n${resourceText}`)
       } else {
         addBotMessage(t.noResources)
@@ -213,6 +225,13 @@ export default function ChatInterface() {
     addUserMessage(userMessage)
     setInputValue('')
     setShowQuickReplies(false)
+
+    // Check if waiting for location input
+    if (waitingForLocation) {
+      setWaitingForLocation(false)
+      await fetchResources(conversationContext.category, userMessage)
+      return
+    }
 
     // Check for crisis keywords
     const isCrisis = detectCrisis(userMessage)
@@ -256,8 +275,8 @@ export default function ChatInterface() {
       {/* WhatsApp-style Header */}
       <div className="wa-header">
         <div className="flex items-center gap-3 flex-1">
-          <button className="hover:bg-wa-dark p-2 rounded-full transition-colors">
-            <ArrowLeft className="w-5 h-5" />
+          <button className="hover:bg-wa-dark p-3 rounded-full transition-colors">
+            <ArrowLeft className="w-6 h-6" />
           </button>
           
           <div className="w-10 h-10 rounded-full bg-primary-500 flex items-center justify-center text-white font-bold">
