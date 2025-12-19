@@ -267,10 +267,19 @@ export default function ChatInterface() {
     }
   }
 
-  const handleLocationSelect = async (location: string) => {
+  const handleLocationSelect = async (location: string, cityValue: string, stateSlug: string) => {
     setShowLocationSelector(false)
     addUserMessage(location)
-    await fetchResources(conversationContext.category, location)
+    // Pass both city and state to fetchResources
+    await fetchResources(conversationContext.category, `${cityValue}|${stateSlug}`)
+  }
+
+  const handleBackToMainMenu = () => {
+    setCurrentStep('welcome')
+    setShowQuickReplies(true)
+    setShowLocationSelector(false)
+    setWaitingForLocation(false)
+    addBotMessage(t.welcomeMessage)
   }
 
   return (
@@ -375,29 +384,43 @@ export default function ChatInterface() {
 
       {/* WhatsApp-style Input Area */}
       <div className="bg-wa-bg border-t border-gray-300 px-2 py-2">
-        <div className="max-w-4xl mx-auto flex gap-2 items-end">
-          {/* Input field */}
-          <div className="flex-1">
-            <textarea
-              ref={inputRef}
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder={t.inputPlaceholder}
-              rows={1}
-              className="wa-input"
-              style={{ maxHeight: '120px' }}
-            />
+        <div className="max-w-4xl mx-auto">
+          {/* Main Menu Button - Always visible */}
+          {currentStep !== 'welcome' && (
+            <div className="mb-2 flex justify-center">
+              <button
+                onClick={handleBackToMainMenu}
+                className="text-sm text-primary-600 hover:text-primary-700 font-medium px-4 py-1 rounded-full hover:bg-primary-50 transition-all"
+              >
+                ↩️ {language === 'te' ? 'ప్రధాన మెను' : language === 'hi' ? 'मुख्य मेनू' : 'Main Menu'}
+              </button>
+            </div>
+          )}
+
+          <div className="flex gap-2 items-end">
+            {/* Input field */}
+            <div className="flex-1">
+              <textarea
+                ref={inputRef}
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder={t.inputPlaceholder}
+                rows={1}
+                className="wa-input"
+                style={{ maxHeight: '120px' }}
+              />
+            </div>
+
+            {/* Send button */}
+            <button
+              onClick={handleSendMessage}
+              disabled={!inputValue.trim() || isLoading}
+              className="wa-send-btn"
+            >
+              <Send className="w-5 h-5" />
+            </button>
           </div>
-          
-          {/* Send button */}
-          <button
-            onClick={handleSendMessage}
-            disabled={!inputValue.trim() || isLoading}
-            className="wa-send-btn"
-          >
-            <Send className="w-5 h-5" />
-          </button>
         </div>
       </div>
     </div>

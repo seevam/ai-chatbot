@@ -8,7 +8,7 @@ type Language = 'en' | 'hi' | 'te'
 
 interface LocationSelectorProps {
   language: Language
-  onLocationSelect: (location: string) => void
+  onLocationSelect: (location: string, cityValue: string, stateSlug: string) => void
   onCancel?: () => void
 }
 
@@ -54,7 +54,9 @@ export default function LocationSelector({ language, onLocationSelect, onCancel 
   const handleConfirm = () => {
     if (selectedLocation) {
       const location = indianLocations.find(loc => loc.value === selectedLocation)
-      onLocationSelect(location?.label || selectedLocation)
+      if (location) {
+        onLocationSelect(location.label, location.value, location.stateSlug)
+      }
     }
   }
 
