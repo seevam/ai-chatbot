@@ -57,7 +57,14 @@
   
   /* Quick Exit Button - WhatsApp style */
   .quick-exit-btn {
-    @apply fixed top-4 right-4 bg-danger-600 text-white px-3 py-2 rounded-full shadow-lg hover:bg-danger-700 transition-all z-50 flex items-center gap-2 font-medium text-sm;
+    @apply fixed top-20 right-4 bg-danger-600 text-white px-3 py-2 rounded-full shadow-lg hover:bg-danger-700 transition-all z-50 flex items-center gap-2 font-medium text-sm;
+  }
+
+  /* Responsive adjustment for Quick Exit on mobile */
+  @media (max-width: 640px) {
+    .quick-exit-btn {
+      @apply top-16 right-2 px-2 py-1.5 text-xs;
+    }
   }
   
   /* Language Selection Button */
@@ -102,6 +109,11 @@
   /* Crisis Banner - WhatsApp style */
   .crisis-banner {
     @apply bg-danger-50 border-l-4 border-danger-500 p-3 text-sm;
+  }
+
+  /* Location Selector */
+  .location-selector {
+    @apply w-full;
   }
   
   /* Scrollbar styling for WhatsApp look */
