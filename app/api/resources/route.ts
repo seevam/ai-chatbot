@@ -23,11 +23,16 @@ export async function GET(request: NextRequest) {
 
       // If state matches
       if (resource.state === stateSlug) {
-        // If we have a city value, prioritize city-specific resources
-        if (cityValue && resource.city) {
-          return resource.city.toLowerCase() === cityValue.toLowerCase()
+        // If resource has a city field (city-specific resource)
+        if (resource.city) {
+          // If user selected a city, only include if it matches
+          if (cityValue) {
+            return resource.city.toLowerCase() === cityValue.toLowerCase()
+          }
+          // If no city selected, include all city-specific resources in the state
+          return true
         }
-        // Otherwise include all state-level resources
+        // Resource has no city field (state-level resource) - always include
         return true
       }
 
