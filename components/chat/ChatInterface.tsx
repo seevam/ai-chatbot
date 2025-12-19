@@ -8,6 +8,7 @@ import { crisisKeywords } from '@/lib/crisisKeywords'
 import QuickExitButton from './QuickExitButton'
 import MessageBubble from './MessageBubble'
 import QuickReplyButtons from './QuickReplyButtons'
+import LocationSelector from './LocationSelector'
 
 type Language = 'en' | 'hi' | 'te'
 
@@ -40,6 +41,7 @@ export default function ChatInterface() {
     crisisDetected: false,
   })
   const [waitingForLocation, setWaitingForLocation] = useState(false)
+  const [showLocationSelector, setShowLocationSelector] = useState(false)
   
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -138,10 +140,10 @@ export default function ChatInterface() {
     } else if (option.action === 'aiResponse') {
       await handleAIResponse(option.text)
     } else if (option.action === 'showResources') {
-      // Prompt for location before fetching resources
+      // Show location selector instead of text input
       setTimeout(() => {
         addBotMessage(t.locationPrompt)
-        setWaitingForLocation(true)
+        setShowLocationSelector(true)
         setShowQuickReplies(false)
       }, 500)
     }
@@ -171,11 +173,7 @@ export default function ChatInterface() {
       if (data.response) {
         addBotMessage(data.response)
 
-        // Add follow-up prompt
-        setTimeout(() => {
-          addBotMessage(t.followUpPrompt)
-        }, 500)
-
+        // Show quick replies if available instead of generic follow-up
         if (data.suggestedActions && data.suggestedActions.length > 0) {
           setShowQuickReplies(true)
         }
@@ -226,9 +224,10 @@ export default function ChatInterface() {
     setInputValue('')
     setShowQuickReplies(false)
 
-    // Check if waiting for location input
+    // Check if waiting for location input (manual text entry as fallback)
     if (waitingForLocation) {
       setWaitingForLocation(false)
+      setShowLocationSelector(false)
       await fetchResources(conversationContext.category, userMessage)
       return
     }
@@ -266,6 +265,12 @@ export default function ChatInterface() {
     if (isBrowser && typeof window !== 'undefined' && window.sessionStorage) {
       sessionStorage.setItem('preferredLanguage', newLang)
     }
+  }
+
+  const handleLocationSelect = async (location: string) => {
+    setShowLocationSelector(false)
+    addUserMessage(location)
+    await fetchResources(conversationContext.category, location)
   }
 
   return (
@@ -349,7 +354,21 @@ export default function ChatInterface() {
               />
             </div>
           )}
-          
+
+          {/* Location Selector */}
+          {showLocationSelector && (
+            <div className="px-2 my-3">
+              <LocationSelector
+                language={language}
+                onLocationSelect={handleLocationSelect}
+                onCancel={() => {
+                  setShowLocationSelector(false)
+                  setWaitingForLocation(true)
+                }}
+              />
+            </div>
+          )}
+
           <div ref={messagesEndRef} />
         </div>
       </div>
